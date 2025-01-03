@@ -57,6 +57,16 @@ HTML_TEMPLATE = """
         a:hover {{
             text-decoration: underline;
         }}
+        .video-title {{
+            font-size: 14px;
+            line-height: 1.2;
+            max-height: 2.4em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }}
         @media (max-width: 768px) {{
             li {{
                 flex: 1 1 calc(33.3333% - 20px);
@@ -116,10 +126,9 @@ def generate_video_thumbnails(videos_dir, thumbnails_dir):
             thumbnail_name = f"{os.path.splitext(file_name)[0]}.jpg"
             thumbnail_path = os.path.join(thumbnails_dir, thumbnail_name)
 
-            # 동영상 길이 계산 및 중앙 시간 추출
+            # 동영상 길이 계산
             duration = get_video_duration(video_path)
-            middle_time = duration / 2
-            thumbnail_time = seconds_to_hhmmss(middle_time)
+            thumbnail_time = seconds_to_hhmmss(duration / 3)
 
             # ffmpeg를 사용해 썸네일 생성
             subprocess.run([
@@ -140,7 +149,7 @@ def generate_index_html(videos_dir, thumbnails_dir, index_file, title_image):
             <li>
                 <a href="videos/{file_name}">
                     <img src="thumbnails/{thumbnail_name}" alt="{file_name} thumbnail">
-                    <div>{file_name}</div>
+                    <div class="video-title">{file_name}</div>
                 </a>
             </li>
             """
