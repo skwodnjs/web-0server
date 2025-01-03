@@ -5,6 +5,7 @@ import subprocess
 VIDEOS_DIR = "/var/www/html/videos"  # 동영상 파일 폴더 경로
 THUMBNAILS_DIR = "/var/www/html/thumbnails"  # 썸네일 저장 경로
 INDEX_FILE = "/var/www/html/index.html"  # 생성할 index.html 경로
+TITLE_IMAGE = "math_thumbnail.webp"
 
 # HTML 템플릿
 HTML_TEMPLATE = """
@@ -13,6 +14,7 @@ HTML_TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:image" content="{title_image}">
     <title>Video Gallery</title>
     <style>
         body {{
@@ -33,17 +35,18 @@ HTML_TEMPLATE = """
             justify-content: center;
         }}
         li {{
-            margin: 15px;
+            margin: 10px;
             padding: 10px;
             background: #fff;
             border: 1px solid #ddd;
             border-radius: 5px;
-            width: 200px;
             text-align: center;
+            flex: 1 1 calc(25% - 20px);  /* 기본 크기: 3개씩 */
+            box-sizing: border-box;
         }}
         img {{
             max-width: 100%;
-            height: 150px;
+            height: auto;
             object-fit: cover;
             border-radius: 5px;
         }}
@@ -53,6 +56,16 @@ HTML_TEMPLATE = """
         }}
         a:hover {{
             text-decoration: underline;
+        }}
+        @media (max-width: 768px) {{
+            li {{
+                flex: 1 1 calc(33.3333% - 20px);
+            }}
+        }}
+        @media (max-width: 480px) {{
+            li {{
+                flex: 1 1 calc(50% - 20px);
+            }}
         }}
     </style>
 </head>
@@ -117,7 +130,7 @@ def generate_video_thumbnails(videos_dir, thumbnails_dir):
             print_progress(i, total_files, "Generating Thumbnails")
         
 
-def generate_index_html(videos_dir, thumbnails_dir, index_file):
+def generate_index_html(videos_dir, thumbnails_dir, index_file, title_image):
     # HTML 파일 생성
     file_links = ""
     for file_name in os.listdir(videos_dir):
@@ -134,12 +147,12 @@ def generate_index_html(videos_dir, thumbnails_dir, index_file):
 
     # HTML 파일 쓰기
     with open(index_file, "w") as f:
-        html_content = HTML_TEMPLATE.format(file_links=file_links)
+        html_content = HTML_TEMPLATE.format(file_links=file_links, title_image=title_image)
         f.write(html_content)
 
 # 실행
 generate_video_thumbnails(VIDEOS_DIR, THUMBNAILS_DIR)
-generate_index_html(VIDEOS_DIR, THUMBNAILS_DIR, INDEX_FILE)
+generate_index_html(VIDEOS_DIR, THUMBNAILS_DIR, INDEX_FILE, TITLE_IMAGE)
 
 # 최종 출력
 print(f"index.html created at {INDEX_FILE}")
