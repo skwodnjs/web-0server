@@ -35,8 +35,8 @@ HTML_TEMPLATE = """
             justify-content: center;
         }}
         li {{
-            margin: 10px;
-            padding: 10px;
+            margin: 4px;
+            padding: 4px;
             background: #fff;
             border: 1px solid #ddd;
             border-radius: 5px;
@@ -48,7 +48,6 @@ HTML_TEMPLATE = """
             max-width: 100%;
             height: auto;
             object-fit: cover;
-            border-radius: 5px;
         }}
         a {{
             text-decoration: none;
@@ -68,11 +67,17 @@ HTML_TEMPLATE = """
             -webkit-box-orient: vertical;
         }}
         @media (max-width: 768px) {{
+            body {{
+                padding: 15px;
+            }}
             li {{
                 flex: 1 1 calc(33.3333% - 20px);
             }}
         }}
         @media (max-width: 480px) {{
+            body {{
+                padding: 10px;
+            }}
             li {{
                 flex: 1 1 calc(50% - 20px);
             }}
