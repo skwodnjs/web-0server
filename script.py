@@ -108,10 +108,14 @@ def seconds_to_hhmmss(seconds):
 
 def print_progress(current, total, task_name):
     """
-    간단한 진행률 출력.
+    간단한 진행 바(progress bar) 출력.
     """
+    bar_length = 50  # 진행 바 길이 설정
     percent = (current / total) * 100
-    print(f"\r{task_name}: {current}/{total} ({percent:.1f}%)", end="", flush=True)
+    filled_length = int(bar_length * current // total)
+
+    bar = "█" * filled_length + "-" * (bar_length - filled_length)
+    print(f"\r{task_name}: |{bar}| {current}/{total} ({percent:.1f}%)", end="", flush=True)
 
 def generate_video_thumbnails(videos_dir, thumbnails_dir):
     # 썸네일 디렉토리가 없으면 생성
@@ -120,31 +124,40 @@ def generate_video_thumbnails(videos_dir, thumbnails_dir):
     video_files = [f for f in os.listdir(videos_dir) if f.endswith((".mp4", ".avi", ".mov"))]
     total_files = len(video_files)
 
+    progress_counter = 0  # 진행도 카운터
+
+    print_progress(progress_counter, total_files * 10, "Generating Thumbnails")   
+
     for i, file_name in enumerate(video_files, start=1):
         if file_name.endswith((".mp4", ".avi", ".mov")):  # 동영상 파일만 처리
             video_path = os.path.join(videos_dir, file_name)
-            thumbnail_name = f"{os.path.splitext(file_name)[0]}.jpg"
-            thumbnail_path = os.path.join(thumbnails_dir, thumbnail_name)
+            base_name = os.path.splitext(file_name)[0]
 
             # 동영상 길이 계산
             duration = get_video_duration(video_path)
-            thumbnail_time = seconds_to_hhmmss(duration / 3)
+            thumbnail_times = [duration * (n / 10) for n in range(1, 11)]  # 10%, 20%, ..., 100% 지점
 
-            # ffmpeg를 사용해 썸네일 생성
-            subprocess.run([
-                "ffmpeg", "-y", "-ss", thumbnail_time, "-i", video_path,  "-vframes", "1", thumbnail_path
-            ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        
-            # 진행률 출력
-            print_progress(i, total_files, "Generating Thumbnails")
-        
+            for idx, time in enumerate(thumbnail_times, start=1):
+                thumbnail_name = f"{base_name}_web{idx:02}server.jpg"
+                thumbnail_path = os.path.join(thumbnails_dir, thumbnail_name)
+                
+                if not os.path.exists(thumbnail_path):
+                    # ffmpeg로 썸네일 생성
+                    subprocess.run([
+                        "ffmpeg", "-ss", seconds_to_hhmmss(time), "-i", video_path, "-vframes", "1", thumbnail_path
+                    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+                # 진행률 출력
+                progress_counter += 1
+                print_progress(progress_counter, total_files * 10, "Generating Thumbnails")        
 
 def generate_index_html(videos_dir, thumbnails_dir, index_file, title_image):
     # HTML 파일 생성
     file_links = ""
     for file_name in os.listdir(videos_dir):
         if file_name.endswith((".mp4", ".avi", ".mov")):  # 동영상 파일만 처리
-            thumbnail_name = f"{os.path.splitext(file_name)[0]}.jpg"
+            base_name = os.path.splitext(file_name)[0]
+            thumbnail_name = f"{base_name}_web04server.jpg"
             file_links += f"""
             <li>
                 <a href="videos/{file_name}">
@@ -164,4 +177,5 @@ generate_video_thumbnails(VIDEOS_DIR, THUMBNAILS_DIR)
 generate_index_html(VIDEOS_DIR, THUMBNAILS_DIR, INDEX_FILE, TITLE_IMAGE)
 
 # 최종 출력
+print()
 print(f"index.html created at {INDEX_FILE}")
