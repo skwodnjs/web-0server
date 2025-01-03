@@ -89,6 +89,22 @@ HTML_TEMPLATE = """
     <ul>
         {file_links}
     </ul>
+    <script>
+        function rehref(event, a, href) {{
+            if (a.href.endsWith('#')) {{
+                event.preventDefault()
+                a.href = href
+            }}
+        }}
+
+        function rotate(img, baseName) {{
+            let index = 1;
+            interval = setInterval(() => {{
+                img.src = `thumbnails/${{baseName}}_web${{index.toString().padStart(2, '0')}}server.jpg`;
+                index = index % 10 + 1;
+            }}, 1000);
+        }}
+    </script>
 </body>
 </html>
 """
@@ -165,8 +181,8 @@ def generate_index_html(videos_dir, thumbnails_dir, index_file, title_image):
             thumbnail_name = f"{base_name}_web04server.jpg"
             file_links += f"""
             <li>
-                <a href="videos/{file_name}">
-                    <img src="thumbnails/{thumbnail_name}" alt="{file_name} thumbnail">
+                <a href="#" onclick="rehref(event, this, 'videos/{file_name}')">
+                    <img src="thumbnails/{thumbnail_name}" alt="{file_name} thumbnail" onclick="rotate(this, '{base_name}')")>
                     <div class="video-title">{file_name}</div>
                 </a>
             </li>
