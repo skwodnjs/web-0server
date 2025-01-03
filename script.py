@@ -156,7 +156,7 @@ def generate_video_thumbnails(videos_dir, thumbnails_dir):
 
             # 동영상 길이 계산
             duration = get_video_duration(video_path)
-            thumbnail_times = [duration * (n / 10) for n in range(1, 11)]  # 10%, 20%, ..., 100% 지점
+            thumbnail_times = [duration * (n / 11) for n in range(1, 11)]
 
             for idx, time in enumerate(thumbnail_times, start=1):
                 thumbnail_name = f"{base_name}_web{idx:02}server.jpg"
